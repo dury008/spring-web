@@ -1,7 +1,11 @@
 package kr.ko.dury008.mvc.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +30,7 @@ import kr.ko.dury008.mvc.service.BoardService;
 @RequestMapping("/board")
 @Api(tags = "게시판 API") //api 이름설정
 public class BoardController { //게시판 컨트롤러
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired //스프링 컨테이너에서 관리하는 빈을 주입
 	private BoardService service;
@@ -33,6 +38,7 @@ public class BoardController { //게시판 컨트롤러
 	@GetMapping
 	@ApiOperation(value = "목록 조회", notes = "게시판 목록정보를 조회할수 있습니다.")
 	public BaseResponse<List<Board>> getList() {
+		logger.info("getLIst");
 		return new BaseResponse<List<Board>>(service.getList());
 	}
 	
@@ -67,7 +73,51 @@ public class BoardController { //게시판 컨트롤러
 		service.save(parameter);
 		return new BaseResponse<Integer>(parameter.getBoardSeq());
 	}
-	 
+	
+	@PutMapping("/saveList1") //대용량 등록
+	@ApiOperation(value = "대용량 등록처리1", notes = "대용량 등록처리1")
+	public BaseResponse<Boolean> saveList1() {
+		int count = 0;
+		List<BoardParameter> list = new ArrayList<BoardParameter>();
+		while(true) {
+			count++;
+			String title = RandomStringUtils.randomAlphabetic(10);
+			String contents = RandomStringUtils.randomAlphabetic(10);
+			list.add(new BoardParameter(title, contents));
+			if(count >= 10000) {
+				break;
+			}	
+		}
+		long start = System.currentTimeMillis();
+		service.saveList1(list);
+		long end = System.currentTimeMillis();
+		logger.info("실행 시간: {}", (end-start)/ 1000.0);
+		return new BaseResponse<Boolean>(true);
+		
+	}
+	
+	@PutMapping("/saveList2") //대용량 등록
+	@ApiOperation(value = "대용량 등록처리2", notes = "대용량 등록처리2")
+	public BaseResponse<Boolean> saveList2() {
+		int count = 0;
+		List<BoardParameter> list = new ArrayList<BoardParameter>();
+		while(true) {
+			count++;
+			String title = RandomStringUtils.randomAlphabetic(10);
+			String contents = RandomStringUtils.randomAlphabetic(10);
+			list.add(new BoardParameter(title, contents));
+			if(count >= 10000) {
+				break;
+			}	
+		}
+		long start = System.currentTimeMillis();
+		service.saveList2(list);
+		long end = System.currentTimeMillis();
+		logger.info("실행 시간: {}", (end-start)/ 1000.0);
+		return new BaseResponse<Boolean>(true);
+		
+	}
+	
 	@DeleteMapping("/delete/{boardSeq}")
 	@ApiOperation(value = "삭제처리", notes = "게시물 번호에 해당하는 정보를 삭제합니다.")
 	@ApiImplicitParams({

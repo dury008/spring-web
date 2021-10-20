@@ -1,6 +1,7 @@
 package kr.ko.dury008.mvc.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,8 @@ public interface BoardRepository { //게시판 Repository
 	Board get(int boardSeq);
 	
 	void save(BoardParameter board);
+	
+	void saveList(Map<String, Object> paramMap);
 	
 	void update(BoardParameter board);
 	
