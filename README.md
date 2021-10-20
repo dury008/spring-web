@@ -6,4 +6,4 @@
 3. Swagger설정 
 4. 공통 Response class, enum 사용
 5. 커스텀 Exception 클래스와 ControllerAdvice 사용해서 예외처리 
-6.인터셉터, 로그백사용, 대용량등록 api사용
+6. 인터셉터, 로그백사용, 대용량등록 api사용
