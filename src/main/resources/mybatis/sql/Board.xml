@@ -2,19 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace = "kr.ko.dury008.mvc.repository.BoardRepository">
-	<select id="getList" resultType="kr.ko.dury008.mvc.domain.Board">
+	<resultMap type="kr.ko.dury008.mvc.domain.Board" id="getListResultMap">
+		<result column="DEL_YN" property="delYn" typeHandler= "kr.ko.dury008.configuration.mybatis.typehandler.StringValueBooleanTypeHandler"/>
+	</resultMap>
+	<select id="getList" parameterType = "kr.ko.dury008.framework.data.domain.PageRequestParameter" resultMap="getListResultMap">
 		SELECT
 			B.BOARD_SEQ,
+			B.BOARD_TYPE,
 			B.TITLE,
 			B.CONTENTS,
-			B.REG_DATE
+			B.REG_DATE,
+			B.DEL_YN
 		FROM T_BOARD B
+		<where>
+			<if test ="@org.apache.commons.lang3.StringUtils@isNotEmpty(parameter.keyword)">
+			AND B.TITLE LIKE CONCAT('%', #{parameter.keyword}, '%')
+			</if>
+			<if test ="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(parameter.boardTypes)">
+			AND B.BOARD_TYPE IN (
+				<foreach collection = "parameter.boardTypes" item = "value" separator = ",">
+					#{value}
+				</foreach>
+			)
+			</if>
+		</where>
 		ORDER BY B.REG_DATE DESC
+		LIMIT #{pageRequest.limit}, #{pageRequest.offset}
+		
 	</select>
 	
 	<select id="get" parameterType="int" resultType="kr.ko.dury008.mvc.domain.Board">
 		SELECT
 			B.BOARD_SEQ,
+			B.BOARD_TYPE,
 			B.TITLE,
 			B.CONTENTS,
 			B.REG_DATE
@@ -24,21 +44,26 @@
 	<insert id="save" parameterType="kr.ko.dury008.mvc.parameter.BoardParameter" useGeneratedKeys="true" keyProperty="boardSeq">
 		INSERT INTO T_BOARD
 		(
+			BOARD_TYPE,
 			TITLE,
 			CONTENTS,
-			REG_DATE
+			REG_DATE,
+			DEL_YN
 		)
 		VALUES
 		(
+			#{boardType.code},
 			#{title},
 			#{contents},
-			NOW()
+			NOW(),
+			#{delYn, typeHandler=kr.ko.dury008.configuration.mybatis.typehandler.StringValueBooleanTypeHandler}
 		)
 	</insert>
 	<insert id="saveList" parameterType="map">
 		INSERT INTO T_BOARD
 		(
 		TITLE,
+		BOARD_TYPE,
 		CONTENTS,
 		REG_DATE
 		)
@@ -46,6 +71,7 @@
 		<foreach collection="boardList" item = "board" separator = ",">
 		(
 		#{board.title},
+		#{board.boardType.code},
 		#{board.contents},
 		NOW()
 		)
@@ -55,6 +81,7 @@
 	<update id="update" parameterType="kr.ko.dury008.mvc.parameter.BoardParameter">
 		UPDATE T_BOARD
 		SET 
+			BOARD_TYPE = #{boardType.code},
 			TITLE = #{title},
 			CONTENTS= #{contents}
 		WHERE BOARD_SEQ = #{boardSeq}

@@ -10,6 +10,7 @@ public class BaseResponse<T> {
 
 		public BaseResponse(T data) {
 			this.code = BaseResponseCode.SUCCESS;
+			this.message = new String("complete");
 			this.data = data; 
 		}
 		
